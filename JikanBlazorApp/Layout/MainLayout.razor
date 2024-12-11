@@ -1,0 +1,29 @@
+﻿@* Davide Cinelli X00193015 CA3 *@
+@inherits LayoutComponentBase
+
+<div class="page d-flex flex-column min-vh-100">
+    <div class="top-row ps-3 navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="">SearchJikanAPI</a>
+            <div class="navbar-collapse" id="navbarNav">
+                <nav class="navbar-nav">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+                    </NavLink>
+                    <NavLink class="nav-link" href="search">
+                        <span class="bi bi-search" aria-hidden="true"></span> Search
+                    </NavLink>
+                    <NavLink class="nav-link" href="top-rated">
+                        <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Top Rated Anime
+                    </NavLink>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow-1" style="margin-top: 56px;">
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

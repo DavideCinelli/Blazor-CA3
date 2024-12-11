@@ -1,0 +1,144 @@
+@* Davide Cinelli X00193015 CA3 *@
+
+@page "/top-rated"
+@using JikanBlazorApp.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Top Rated</PageTitle>
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<div class="container mt-4">
+    <h2>Top Rated Anime</h2>
+    <div class="row">
+        <div class="col-12">
+            @if (isLoadingTopAnime)
+            {
+                <p>Loading...</p>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="text-danger">@errorMessage</p>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Rank</th>
+                            <th>Title</th>
+                            <th class="text-center">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (topAnimeList != null && topAnimeList.Any())
+                        {
+                            @foreach (var anime in topAnimeList)
+                            {
+                                <tr>
+                                    <td class="text-center align-middle" style="font-size: 2em;">
+                                        @(topAnimeList.IndexOf(anime) + 1)
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@anime.Images?.Jpg?.Image_url" alt="@anime.Title" style="width: 50px; height: auto; margin-right: 10px;" />
+                                            <div>
+                                                <a href="javascript:void(0)" @onclick="() => NavigateToDetail(anime.Mal_id, anime.Title)">
+                                                    <strong>@anime.Title</strong>
+                                                </a><br />
+                                                <small>@anime.Episodes eps</small><br />
+                                                <small>@anime.Aired?.From?.Year</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <i class="fas fa-star"></i> @anime.Score
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<AnimeModel> topAnimeList = new List<AnimeModel>();
+    private bool isLoadingTopAnime = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTopRatedAnime();
+    }
+
+    private async Task LoadTopRatedAnime()
+    {
+        try
+        {
+            int page = 1;
+            while (topAnimeList.Count < 100)
+            {
+                var response = await GetAnimeDataWithRetryAsync(page);
+                if (response?.Data != null)
+                {
+                    topAnimeList.AddRange(response.Data);
+                }
+                else
+                {
+                    break;
+                }
+                page++;
+            }
+            topAnimeList = topAnimeList.Take(100).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading top anime: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTopAnime = false;
+        }
+    }
+
+    private async Task<AnimeResponse?> GetAnimeDataWithRetryAsync(int page)
+    {
+        int retryCount = 0;
+        const int maxRetries = 5;
+        const int delay = 2000; //2 secs
+
+        while (retryCount < maxRetries)
+        {
+            try
+            {
+                var response = await Http.GetFromJsonAsync<AnimeResponse>($"https://api.jikan.moe/v4/top/anime?type=tv&order_by=score&page={page}");
+                return response;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                retryCount++;
+                await Task.Delay(delay);
+            }
+        }
+
+        return null;
+    }
+
+    private void NavigateToDetail(int id, string? title)
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            var formattedTitle = title.Replace(" ", "_");
+            Navigation.NavigateTo($"/anime/{id}/{formattedTitle}");
+        }
+        else
+        {
+            Console.WriteLine("Invalid title");
+        }
+    }
+}

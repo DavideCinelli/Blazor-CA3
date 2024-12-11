@@ -1,0 +1,97 @@
+@* Davide Cinelli X00193015 CA3 *@
+
+@page "/anime/{id:int}/{title}"
+@using JikanBlazorApp.Models
+@inject HttpClient Http
+
+<PageTitle>Anime Detail</PageTitle>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    [Parameter]
+    public string? title { get; set; }
+
+    private AnimeModel? anime;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnimeDetail();
+    }
+
+    private async Task LoadAnimeDetail()
+    {
+        try
+        {
+            Console.WriteLine($"Fetching details for anime ID: {id}");
+            var response = await Http.GetFromJsonAsync<AnimeDetailResponse>($"https://api.jikan.moe/v4/anime/{id}");
+            
+            if (response?.Data != null)
+            {
+                anime = response.Data;
+                Console.WriteLine($"Successfully fetched details for: {anime.Title}");
+            }
+            else
+            {
+                Console.WriteLine("Anime details are null.");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading anime details: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+<div class="anime-detail-container">
+    <h1>@title?.Replace("_", " ")</h1>
+
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+    else if (anime != null)
+    {
+        <div class="anime-detail">
+            <img src="@anime.Images?.Jpg?.Image_url" alt="@anime.Title" class="anime-image" />
+            <div class="anime-info">
+                <h2>@anime.Title (@anime.Title_english)</h2>
+                <p><strong>Score:</strong> @anime.Score</p>
+                <p><strong>Rank:</strong> #@anime.Rank</p>
+                <p><strong>Popularity:</strong> #@anime.Popularity</p>
+                <p><strong>Members:</strong> @anime.Members</p>
+            </div>
+        </div>
+        <div class="anime-additional-info">
+            <p><strong>Episodes:</strong> @anime.Episodes</p>
+            <p><strong>Aired:</strong> @anime.Aired?.From?.ToString("MMMM dd, yyyy") - @anime.Aired?.To?.ToString("MMMM dd, yyyy")</p>
+            <p><strong>Broadcast:</strong> @anime.Broadcast?.String</p>
+            <p><strong>Genres:</strong> @string.Join(", ", anime.Genres?.Select(g => g.Name) ?? new List<string>())</p>
+            <p><strong>Themes:</strong> @string.Join(", ", anime.Themes?.Select(t => t.Name) ?? new List<string>())</p>
+            <p><strong>Producers:</strong> @string.Join(", ", anime.Producers?.Select(p => p.Name) ?? new List<string>())</p>
+            <p><strong>Licensors:</strong> @string.Join(", ", anime.Licensors?.Select(l => l.Name) ?? new List<string>())</p>
+            <p><strong>Studios:</strong> @string.Join(", ", anime.Studios?.Select(s => s.Name) ?? new List<string>())</p>
+            <p><strong>Trailer:</strong> <a href="@anime.Trailer?.Url" target="_blank">Watch Trailer</a></p>
+        </div>
+        <div class="anime-synopsis">
+            <h3>Synopsis</h3>
+            <p>@anime.Synopsis</p>
+        </div>
+    }
+    else
+    {
+        <p>No details available.</p>
+    }
+</div>

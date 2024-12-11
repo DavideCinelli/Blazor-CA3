@@ -1,0 +1,111 @@
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.top-row {
+    background-color: #343a40; /* Dark background for navbar */
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: space-between;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.top-row a, .top-row .btn-link {
+    white-space: nowrap;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    color: white;
+}
+
+.top-row a:hover, .top-row .btn-link:hover {
+    text-decoration: underline;
+}
+
+.top-row a:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-direction: row;
+}
+
+.nav-link {
+    color: white;
+    padding: 0.5rem 1rem;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler {
+    border: none;
+    background: none;
+}
+
+.navbar-collapse {
+    flex-grow: 0;
+}
+
+.collapse {
+    display: none;
+}
+
+@media (max-width: 640.98px) {
+    .top-row {
+        justify-content: space-between;
+    }
+
+    .top-row a, .top-row .btn-link {
+        margin-left: 0;
+    }
+
+    .navbar-collapse {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .collapse {
+        display: block;
+    }
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+.footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

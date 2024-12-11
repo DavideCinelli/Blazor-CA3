@@ -1,0 +1,196 @@
+﻿@* Davide Cinelli X00193015 CA3 *@
+
+@page "/"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using JikanBlazorApp.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+<h1>Welcome to SearchJikanAPI</h1>
+
+<h2>Top 10 Most Popular Anime</h2>
+<div class="horizontal-scroll-container">
+    <div class="horizontal-scroll-content">
+        @if (topAnimeList != null && topAnimeList.Any())
+        {
+            @foreach (var anime in topAnimeList.Select((anime, index) => new { anime, index }))
+            {
+                <div class="anime-card" @onclick="() => NavigateToDetail(anime.anime.Mal_id, anime.anime.Title)">
+                    <h3 class="anime-title">@($"{anime.index + 1}. {anime.anime.Title}")</h3>
+                    @if (!string.IsNullOrEmpty(anime.anime.Images?.Jpg?.Image_url))
+                    {
+                        <img src="@anime.anime.Images.Jpg.Image_url" alt="@anime.anime.Title" />
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/200" alt="No image available" />
+                    }
+                    <div class="anime-info">
+                        <p>Episodes: @(anime.anime.Episodes.HasValue ? anime.anime.Episodes.ToString() : "Currently Airing")</p>
+                        <p>Rating: @(anime.anime.Score.HasValue ? anime.anime.Score.ToString() : "No rating")</p>
+                    </div>
+                </div>
+            }
+        }
+        else if (isLoadingTopAnime)
+        {
+            <p>Loading...</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+    </div>
+</div>
+
+<h2>Upcoming Releases</h2>
+<div class="horizontal-scroll-container">
+    <div class="horizontal-scroll-content">
+        @if (upcomingReleasesList != null && upcomingReleasesList.Any())
+        {
+            @foreach (var anime in upcomingReleasesList.Where(anime => anime.Aired?.From != null))
+            {
+                <div class="anime-card" @onclick="() => NavigateToDetail(anime.Mal_id, anime.Title)">
+                    <h3 class="anime-title">@anime.Title</h3>
+                    @if (!string.IsNullOrEmpty(anime.Images?.Jpg?.Image_url))
+                    {
+                        <img src="@anime.Images.Jpg.Image_url" alt="@anime.Title" />
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/200" alt="No image available" />
+                    }
+                    <div class="anime-info">
+                        <p>Release Date: @anime.Aired?.From?.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                </div>
+            }
+        }
+        else if (isLoadingUpcomingReleases)
+        {
+            <p>Loading...</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+    </div>
+</div>
+
+<h2>Seasonal Anime</h2>
+<div class="horizontal-scroll-container">
+    <div class="horizontal-scroll-content">
+        @if (seasonalAnimeList != null && seasonalAnimeList.Any())
+        {
+            @foreach (var anime in seasonalAnimeList)
+            {
+                <div class="anime-card" @onclick="() => NavigateToDetail(anime.Mal_id, anime.Title)">
+                    <h3 class="anime-title">@anime.Title</h3>
+                    @if (!string.IsNullOrEmpty(anime.Images?.Jpg?.Image_url))
+                    {
+                        <img src="@anime.Images.Jpg.Image_url" alt="@anime.Title" />
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/200" alt="No image available" />
+                    }
+                    <div class="anime-info">
+                        <p>Episodes: @(anime.Episodes.HasValue ? anime.Episodes.ToString() : "Currently Airing")</p>
+                    </div>
+                </div>
+            }
+        }
+        else if (isLoadingSeasonalAnime)
+        {
+            <p>Loading...</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="text-danger">@errorMessage</p>
+        }
+    </div>
+</div>
+
+@code {
+    private List<AnimeModel>? topAnimeList;
+    private List<AnimeModel>? upcomingReleasesList;
+    private List<AnimeModel>? seasonalAnimeList;
+    private bool isLoadingTopAnime = true;
+    private bool isLoadingUpcomingReleases = true;
+    private bool isLoadingSeasonalAnime = true;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTopAnime();
+        await LoadUpcomingReleases();
+        await LoadSeasonalAnime();
+    }
+
+    private async Task LoadTopAnime()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<AnimeResponse>("https://api.jikan.moe/v4/top/anime?filter=bypopularity");
+            topAnimeList = response?.Data?.Take(10).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading top anime: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTopAnime = false;
+        }
+    }
+
+    private async Task LoadUpcomingReleases()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<AnimeResponse>("https://api.jikan.moe/v4/top/anime?filter=upcoming");
+            upcomingReleasesList = response?.Data?.Where(anime => anime.Aired?.From != null).Take(10).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading upcoming releases: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingUpcomingReleases = false;
+        }
+    }
+
+    private async Task LoadSeasonalAnime()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<AnimeResponse>("https://api.jikan.moe/v4/top/anime?filter=airing");
+            seasonalAnimeList = response?.Data?.Take(10).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading seasonal anime: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingSeasonalAnime = false;
+        }
+    }
+
+   private void NavigateToDetail(int id, string? title)
+   {
+      if (!string.IsNullOrWhiteSpace(title))
+      {
+         var formattedTitle = title.Replace(" ", "_");
+         Navigation.NavigateTo($"/anime/{id}/{formattedTitle}");
+      }
+      else
+      {
+         Console.WriteLine("Invalid title");
+      }
+   }
+}

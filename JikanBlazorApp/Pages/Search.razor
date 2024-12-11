@@ -1,0 +1,125 @@
+@* Davide Cinelli X00193015 CA3 *@
+
+@page "/search"
+@page "/search/{query}"
+
+@using JikanBlazorApp.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Search Anime</PageTitle>
+
+<h1>Search Anime</h1>
+
+<div>
+    <input type="text" @bind="searchQuery" placeholder="Enter anime title" class="form-control" />
+    <button class="btn btn-primary" @onclick="SearchAnime">Search</button>
+</div>
+
+@if (animeList != null && animeList.Any())
+{
+    <h2>Search Results (@animeList.Count)</h2>
+    <div class="anime-grid">
+        @foreach (var anime in animeList)
+        {
+            <div class="anime-card" @onclick="() => NavigateToDetail(anime.Mal_id, anime.Title)">
+                <h3 class="anime-title">@anime.Title</h3>
+                @if (!string.IsNullOrEmpty(anime.Images?.Jpg?.Image_url))
+                {
+                    <img src="@anime.Images.Jpg.Image_url" alt="@anime.Title" />
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/200" alt="No image available" />
+                }
+                <div class="anime-info">
+                    <p>Episodes: @(anime.Episodes.HasValue ? anime.Episodes.ToString() : "Currently Airing")</p>
+                    <p>Rating: @(anime.Score.HasValue ? anime.Score.ToString() : "No rating")</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+else if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else
+{
+    <p>No results found. Try another search.</p>
+}
+
+@code {
+    [Parameter]
+    public string? Query { get; set; }
+
+    private string searchQuery = string.Empty;
+    private List<AnimeModel> animeList = new List<AnimeModel>();
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(Query))
+        {
+            searchQuery = Query;
+            await SearchAnime();
+        }
+    }
+
+    private async Task SearchAnime()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            return;
+        }
+
+        isLoading = true;
+        animeList = new List<AnimeModel>();
+        errorMessage = string.Empty;
+
+        try
+        {
+            int page = 1;
+            while (animeList.Count < 100)
+            {
+                var response = await Http.GetFromJsonAsync<AnimeResponse>($"https://api.jikan.moe/v4/anime?q={searchQuery}&page={page}");
+                if (response?.Data != null)
+                {
+                    animeList.AddRange(response.Data);
+                }
+                else
+                {
+                    break;
+                }
+                page++;
+            }
+            animeList = animeList.Take(100).ToList();
+            Navigation.NavigateTo($"/search/{searchQuery}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToDetail(int id, string? title)
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            Navigation.NavigateTo($"/anime/{id}/{title}");
+        }
+        else
+        {
+            Console.WriteLine("Invalid title");
+        }
+    }
+}
