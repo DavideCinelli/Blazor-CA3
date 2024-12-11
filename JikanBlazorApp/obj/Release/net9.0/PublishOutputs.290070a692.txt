@@ -1,0 +1,4 @@
+C:\Users\David\Desktop\Coding\X00190315_BlazorWasm_CA3\JikanBlazorApp\publish\selenium-manager\linux\selenium-manager
+C:\Users\David\Desktop\Coding\X00190315_BlazorWasm_CA3\JikanBlazorApp\publish\selenium-manager\macos\selenium-manager
+C:\Users\David\Desktop\Coding\X00190315_BlazorWasm_CA3\JikanBlazorApp\publish\selenium-manager\windows\selenium-manager.exe
+C:\Users\David\Desktop\Coding\X00190315_BlazorWasm_CA3\JikanBlazorApp\publish\web.config

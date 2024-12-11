@@ -1,0 +1,112 @@
+/* /Layout/MainLayout.razor.rz.scp.css */
+.page[b-yxoe9pm21e] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+main[b-yxoe9pm21e] {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.top-row[b-yxoe9pm21e] {
+    background-color: #343a40; /* Dark background for navbar */
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: space-between;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.top-row a[b-yxoe9pm21e], .top-row .btn-link[b-yxoe9pm21e] {
+    white-space: nowrap;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    color: white;
+}
+
+.top-row a:hover[b-yxoe9pm21e], .top-row .btn-link:hover[b-yxoe9pm21e] {
+    text-decoration: underline;
+}
+
+.top-row a:first-child[b-yxoe9pm21e] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar-nav[b-yxoe9pm21e] {
+    display: flex;
+    flex-direction: row;
+}
+
+.nav-link[b-yxoe9pm21e] {
+    color: white;
+    padding: 0.5rem 1rem;
+}
+
+.nav-link:hover[b-yxoe9pm21e] {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler[b-yxoe9pm21e] {
+    border: none;
+    background: none;
+}
+
+.navbar-collapse[b-yxoe9pm21e] {
+    flex-grow: 0;
+}
+
+.collapse[b-yxoe9pm21e] {
+    display: none;
+}
+
+@media (max-width: 640.98px) {
+    .top-row[b-yxoe9pm21e] {
+        justify-content: space-between;
+    }
+
+    .top-row a[b-yxoe9pm21e], .top-row .btn-link[b-yxoe9pm21e] {
+        margin-left: 0;
+    }
+
+    .navbar-collapse[b-yxoe9pm21e] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .collapse[b-yxoe9pm21e] {
+        display: block;
+    }
+}
+
+.page[b-yxoe9pm21e] {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main[b-yxoe9pm21e] {
+    flex-grow: 1;
+}
+
+.footer[b-yxoe9pm21e] {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+.footer a[b-yxoe9pm21e] {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover[b-yxoe9pm21e] {
+    text-decoration: underline;
+}
